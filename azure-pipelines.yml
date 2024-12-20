@@ -1,0 +1,35 @@
+# azure-pipelines.yml
+trigger:
+- none  # Adjust the branch name as needed
+
+pool:
+  name: 'TestAgent'  # Replace with your actual agent pool name
+
+jobs:
+- job: Build
+  displayName: 'Build job'
+  pool:
+    name: 'TestAgent'  # Replace with your actual agent pool name
+  steps:
+
+  - script: |
+      echo "Building the project"
+      dotnet build Playwright-Specflow/Playwright-Specflow.csproj --configuration Release
+    displayName: 'Build Project'
+
+- job: Test
+  displayName: 'Test job'
+  pool:
+    name: 'TestAgent'  # Replace with your actual agent pool name
+  steps:
+  - script: |
+      echo "Running tests"
+      dotnet test --configuration Release --logger "trx;LogFileName=test_results.trx"
+    displayName: 'Run Tests'
+
+  - task: PublishTestResults@2
+    inputs:
+      testResultsFiles: '**/*.trx'
+      testResultsFormat: 'VSTest'
+      mergeTestResults: true
+    displayName: 'Publish Test Results'
